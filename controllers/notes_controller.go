@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -47,5 +48,19 @@ func (p *NotesController) GetAllNotes(c echo.Context) error {
 	}
 
 	fmt.Println(result)
+	return c.JSON(http.StatusOK, dto.NotesResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": result}})
+}
+
+func (p *NotesController) GetNotesById(c echo.Context) error {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.NotesResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+	}
+
+	result, err := p.notesUsecase.GetNotesById(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.NotesResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+	}
+
 	return c.JSON(http.StatusOK, dto.NotesResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": result}})
 }

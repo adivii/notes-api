@@ -21,9 +21,11 @@ type Notes struct {
 type NotesRepository interface {
 	CreateNotes(req Notes) (sql.Result, error)
 	GetAllNotes() ([]Notes, error)
+	GetNotesById(id uuid.UUID) (*Notes, error)
 }
 
 type NotesUsecase interface {
 	CreateNotes(req dto.NotesRequest) (sql.Result, error)
 	GetAllNotes() ([]Notes, error)
+	GetNotesById(id uuid.UUID) (*Notes, error)
 }

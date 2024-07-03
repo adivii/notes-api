@@ -15,5 +15,6 @@ func NotesRoute(e *echo.Echo, db *sqlx.DB) {
 	notesController := controllers.NewProductController(notesUsecase)
 
 	e.GET("api/notes/", notesController.GetAllNotes)
+	e.GET("api/notes/:id", notesController.GetNotesById)
 	e.POST("api/notes/", notesController.CreateNotes)
 }

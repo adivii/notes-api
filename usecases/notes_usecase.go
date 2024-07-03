@@ -5,6 +5,8 @@ import (
 	"adivii/notes-api/models"
 	"database/sql"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type NotesUsecase struct {
@@ -30,4 +32,8 @@ func (p NotesUsecase) CreateNotes(req dto.NotesRequest) (sql.Result, error) {
 
 func (p NotesUsecase) GetAllNotes() ([]models.Notes, error) {
 	return p.notesRepository.GetAllNotes()
+}
+
+func (p NotesUsecase) GetNotesById(id uuid.UUID) (*models.Notes, error) {
+	return p.notesRepository.GetNotesById(id)
 }

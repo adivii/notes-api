@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -45,4 +46,23 @@ func (p *NotesRepository) GetAllNotes() ([]models.Notes, error) {
 	}
 
 	return notes, nil
+}
+
+func (p *NotesRepository) GetNotesById(id uuid.UUID) (*models.Notes, error) {
+	var note models.Notes
+
+	query := fmt.Sprintf(`SELECT id, title, "content", created_at, updated_at, labels_id FROM "public"."notes" WHERE id='%s'`, id.String())
+	rows, err := p.db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+
+	if rows.Next() {
+		err := rows.Scan(&note.Id, &note.Title, &note.Content, &note.CreatedAt, &note.UpdatedAt, &note.LabelsId)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return &note, nil
 }
