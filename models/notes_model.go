@@ -14,7 +14,6 @@ type Notes struct {
 	Content   string        `json:"content" validate:"required"`
 	CreatedAt time.Time     `json:"created_at" validate:"required"`
 	UpdatedAt time.Time     `json:"updated_at" validate:"required"`
-	DeletedAt time.Time     `json:"deleted_at"`
 	LabelsId  uuid.NullUUID `json:"labels_id"`
 }
 
@@ -22,10 +21,14 @@ type NotesRepository interface {
 	CreateNotes(req Notes) (sql.Result, error)
 	GetAllNotes() ([]Notes, error)
 	GetNotesById(id uuid.UUID) (*Notes, error)
+	UpdateNotes(req Notes) (sql.Result, error)
+	DeleteNotes(id uuid.UUID) (sql.Result, error)
 }
 
 type NotesUsecase interface {
 	CreateNotes(req dto.NotesRequest) (sql.Result, error)
 	GetAllNotes() ([]Notes, error)
 	GetNotesById(id uuid.UUID) (*Notes, error)
+	UpdateNotes(req dto.NotesRequest, id uuid.UUID) (sql.Result, error)
+	DeleteNotes(id uuid.UUID) (sql.Result, error)
 }

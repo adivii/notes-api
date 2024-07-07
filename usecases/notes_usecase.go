@@ -37,3 +37,19 @@ func (p NotesUsecase) GetAllNotes() ([]models.Notes, error) {
 func (p NotesUsecase) GetNotesById(id uuid.UUID) (*models.Notes, error) {
 	return p.notesRepository.GetNotesById(id)
 }
+
+func (p NotesUsecase) UpdateNotes(req dto.NotesRequest, id uuid.UUID) (sql.Result, error) {
+	newNotes := models.Notes{
+		Id:        id,
+		Title:     req.Title,
+		Content:   req.Content,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	return p.notesRepository.UpdateNotes(newNotes)
+}
+
+func (p NotesUsecase) DeleteNotes(id uuid.UUID) (sql.Result, error) {
+	return p.notesRepository.DeleteNotes(id)
+}

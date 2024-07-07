@@ -28,7 +28,7 @@ func (p *NotesRepository) CreateNotes(req models.Notes) (sql.Result, error) {
 func (p *NotesRepository) GetAllNotes() ([]models.Notes, error) {
 	var notes []models.Notes
 
-	query := `SELECT id, title, "content", created_at, updated_at, labels_id FROM "public"."notes"`
+	query := `SELECT id, title, "content", created_at, updated_at, labels_id FROM "public"."notes" WHERE is_deleted=false`
 	rows, err := p.db.Query(query)
 	if err != nil {
 		return nil, err
@@ -51,18 +51,23 @@ func (p *NotesRepository) GetAllNotes() ([]models.Notes, error) {
 func (p *NotesRepository) GetNotesById(id uuid.UUID) (*models.Notes, error) {
 	var note models.Notes
 
-	query := fmt.Sprintf(`SELECT id, title, "content", created_at, updated_at, labels_id FROM "public"."notes" WHERE id='%s'`, id.String())
-	rows, err := p.db.Query(query)
+	query := fmt.Sprintf(`SELECT id, title, "content", created_at, updated_at, labels_id FROM "public"."notes" WHERE id='%s' AND is_deleted=false`, id.String())
+	row := p.db.QueryRow(query)
+
+	err := row.Scan(&note.Id, &note.Title, &note.Content, &note.CreatedAt, &note.UpdatedAt, &note.LabelsId)
 	if err != nil {
 		return nil, err
 	}
 
-	if rows.Next() {
-		err := rows.Scan(&note.Id, &note.Title, &note.Content, &note.CreatedAt, &note.UpdatedAt, &note.LabelsId)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	return &note, nil
+}
+
+func (p *NotesRepository) UpdateNotes(req models.Notes) (sql.Result, error) {
+	query := fmt.Sprintf(`UPDATE "public"."notes" SET title='%s', "content"='%s', updated_at='%s' WHERE id='%s' AND is_deleted=false`, req.Title, req.Content, time.Now().Format(time.RFC3339), req.Id.String())
+	return p.db.Exec(query)
+}
+
+func (p *NotesRepository) DeleteNotes(id uuid.UUID) (sql.Result, error) {
+	query := fmt.Sprintf(`UPDATE "public"."notes" SET is_deleted=true WHERE id='%s' AND is_deleted=false`, id.String())
+	return p.db.Exec(query)
 }

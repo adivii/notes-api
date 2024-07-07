@@ -64,3 +64,43 @@ func (p *NotesController) GetNotesById(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, dto.NotesResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": result}})
 }
+
+func (p *NotesController) UpdateNotes(c echo.Context) error {
+	var notes models.Notes
+
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.NotesResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+	}
+
+	err = c.Bind(&notes)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.NotesResponse{Status: http.StatusBadRequest, Message: "error", Data: &echo.Map{"data": err.Error()}})
+	}
+
+	newNotes := dto.NotesRequest{
+		Title:   notes.Title,
+		Content: notes.Content,
+	}
+
+	result, err := p.notesUsecase.UpdateNotes(newNotes, id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.NotesResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+	}
+
+	return c.JSON(http.StatusCreated, dto.NotesResponse{Status: http.StatusCreated, Message: "success", Data: &echo.Map{"data": result}})
+}
+
+func (p *NotesController) DeleteNotes(c echo.Context) error {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.NotesResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+	}
+
+	result, err := p.notesUsecase.DeleteNotes(id)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, dto.NotesResponse{Status: http.StatusInternalServerError, Message: "error", Data: &echo.Map{"data": err.Error()}})
+	}
+
+	return c.JSON(http.StatusOK, dto.NotesResponse{Status: http.StatusOK, Message: "success", Data: &echo.Map{"data": result}})
+}
